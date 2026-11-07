@@ -1,17 +1,18 @@
 # Adwarecraft
 
-A client-side Fabric mod for Minecraft Java Edition 1.20.1, satirising apps that force ads into every spare moment.
+A client-side Fabric mod for Minecraft Java Edition 1.20.1, satirising apps that force ads into every spare moment. The current feature set carries forward the v1.0.1 release's ad formats and configurable settings.
 
 ## Ads
 
-- Six visual ad formats with 30 rotating messages, including Chinese-language red-envelope, daily check-in, fake system alert, countdown, notification, and short-video parodies.
-- Ads can appear during gameplay and when opening pause/inventory screens.
-- Fake skip-button styles remain visual jokes: press **X** to dismiss any ad immediately.
-- Small animated pixel art is drawn in-game; the decorative QR-like pattern is not scannable and no external media or network services are used.
+- 30 rotating promotions in six visual ad formats, including Chinese-language red-envelope, check-in, fake-system-alert, countdown, notification, and short-video parodies.
+- Gameplay and pause/inventory triggers, plus periodic ads printed as normal in-game chat messages.
+- Up to three overlapping decorative ad windows and an optional fake message-box popup.
+- The fake skip controls and OK/close-looking shapes are visual only. Press **X** to dismiss the active ads immediately; they never consume clicks or gameplay input.
+- Animated pixel art is rendered in-game. No media downloads, tracking, or external ad services.
 
 ## Settings
 
-Press **K** by default to open the settings screen (the key can be rebound in Controls). Toggle the mod, gameplay ads, and pause/inventory ads; cycle gameplay interval (15/30/45/90 seconds) and ad duration (5/10/15 seconds). Changes are saved automatically to `config/adwarecraft.properties`.
+Press **K** by default to open settings (rebind it under Controls). Toggle the mod, gameplay ads, pause/inventory ads, chat ads, and message-box ads. Cycle ad windows (1–3), gameplay interval (15/30/45/90/180 seconds), ad duration (5/10/15/20 seconds), and chat interval (30/60/90/180 seconds). Settings persist in `config/adwarecraft.properties`.
 
 ## Build
 
