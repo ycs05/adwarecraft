@@ -2,23 +2,20 @@
 
 A client-side Fabric mod for Minecraft Java Edition 1.20.1, satirising apps that force ads into every spare moment.
 
-## Languages
-
-All visible strings are defined in standard Minecraft language JSON files under `src/main/resources/assets/adwarecraft/lang/`. The mod uses Minecraft's `Text.translatable` system, so the selected Minecraft language automatically controls the ad copy, brands, skip-button jokes, and chat messages. English (US), French, Spanish (Spain), German, Japanese, and Simplified Chinese are included; add or edit a locale file to contribute another translation. English US is the fallback locale.
-
 ## Ads
 
-- A sponsored interruption about every 45 seconds of active gameplay.
-- Extra ads when opening an inventory/container or pause menu, with an 18-second cooldown.
-- Rotating ad copy and fake brands, translated using resource keys.
-- Four fake skip styles; press **X** at any time to really dismiss the ad. Ads also auto-close after 10 seconds.
-- Animated pixel-art emerald promo rendered in-game without external media.
+- Six visual ad formats with 30 rotating messages, including Chinese-language red-envelope, daily check-in, fake system alert, countdown, notification, and short-video parodies.
+- Ads can appear during gameplay and when opening pause/inventory screens.
+- Fake skip-button styles remain visual jokes: press **X** to dismiss any ad immediately.
+- Small animated pixel art is drawn in-game; the decorative QR-like pattern is not scannable and no external media or network services are used.
 
-The visual overlay never captures clicks, pauses gameplay, blocks controls, or connects to an ad service. Rebind the dismiss key in Controls.
+## Settings
+
+Press **K** by default to open the settings screen (the key can be rebound in Controls). Toggle the mod, gameplay ads, and pause/inventory ads; cycle gameplay interval (15/30/45/90 seconds) and ad duration (5/10/15 seconds). Changes are saved automatically to `config/adwarecraft.properties`.
 
 ## Build
 
 - Java 17
 - Gradle 8.6 or newer
 
-Run `gradle build`; the mod jar will be in `build/libs/`.
+Run `gradle --no-daemon clean build`; the mod JAR will be in `build/libs/`.
