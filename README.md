@@ -1,16 +1,20 @@
 # Adwarecraft
 
-A small, client-side Fabric mod for Minecraft Java Edition 1.20.1, satirising apps that force ads into every spare moment.
+A client-side Fabric mod for Minecraft Java Edition 1.20.1, satirising apps that force ads into every spare moment.
 
-## What it does
+## Languages
 
-- A random sponsored interruption about every **45 seconds** of active gameplay.
-- Extra ads when opening an inventory/container or the pause menu, with an 18-second cooldown to avoid a constant re-trigger loop.
-- 20+ rotating absurd ad messages and five fake brands.
-- Four obnoxious skip styles: a five-second countdown and fake skip, a fake instant skip, a hidden-skip message, and no skip button. The ad always auto-closes after 10 seconds.
-- A tiny animated pixel-art emerald promo rendered in-game (bobbing and sparkling), so there are no external images, video files, or media decoders.
+All visible strings are defined in standard Minecraft language JSON files under `src/main/resources/assets/adwarecraft/lang/`. The mod uses Minecraft's `Text.translatable` system, so the selected Minecraft language automatically controls the ad copy, brands, skip-button jokes, and chat messages. English (US), French, Spanish (Spain), German, Japanese, and Simplified Chinese are included; add or edit a locale file to contribute another translation. English US is the fallback locale.
 
-**A real escape is always available:** press **X** to dismiss the ad immediately, even when the mock ad claims there is no skip button. These are visual overlays only: they do not capture clicks, pause gameplay, block inventory controls, or connect to an ad service. Use the Controls menu to rebind the dismiss key.
+## Ads
+
+- A sponsored interruption about every 45 seconds of active gameplay.
+- Extra ads when opening an inventory/container or pause menu, with an 18-second cooldown.
+- Rotating ad copy and fake brands, translated using resource keys.
+- Four fake skip styles; press **X** at any time to really dismiss the ad. Ads also auto-close after 10 seconds.
+- Animated pixel-art emerald promo rendered in-game without external media.
+
+The visual overlay never captures clicks, pauses gameplay, blocks controls, or connects to an ad service. Rebind the dismiss key in Controls.
 
 ## Build
 
@@ -18,5 +22,3 @@ A small, client-side Fabric mod for Minecraft Java Edition 1.20.1, satirising ap
 - Gradle 8.6 or newer
 
 Run `gradle build`; the mod jar will be in `build/libs/`.
-
-For development, import this project as a Gradle project and run the generated Minecraft client configuration.
