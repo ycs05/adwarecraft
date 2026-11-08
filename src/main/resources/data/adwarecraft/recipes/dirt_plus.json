@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["DDD", "DED", "DDD"],
+  "key": {
+    "D": { "item": "minecraft:dirt" },
+    "E": { "item": "minecraft:emerald" }
+  },
+  "result": { "item": "adwarecraft:dirt_plus", "count": 1 }
+}

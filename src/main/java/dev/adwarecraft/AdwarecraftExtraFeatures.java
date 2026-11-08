@@ -1,9 +1,9 @@
 package dev.adwarecraft;
 
-import com.mojang.authlib.GameProfile;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.util.Window;
@@ -14,18 +14,22 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Language;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
 
+import com.mojang.authlib.GameProfile;
 import java.util.UUID;
 
-/** Extra client-side ad formats, event triggers, and deliberately harmless visual interactions. */
+/** Extra client-side ad formats, event triggers, and clickable reward offers. */
 public final class AdwarecraftExtraFeatures implements ClientModInitializer {
     private static final int AD_DURATION_TICKS = 20 * 9;
     private static final int TRIGGER_COOLDOWN_TICKS = 20 * 25;
     private static final int VIRTUAL_PLAYER_LIFETIME = 20 * 30;
-    private static final String[] TRIGGERS = {"health", "hunger", "dimension", "inventory", "night"};
-    private static final String[] TYPES = {"influencer", "subscription", "breaking_news", "loot_crate", "music"};
+    private static final int BANNER_HEIGHT = 80;
+    private static final int CLAIM_BUTTON_WIDTH = 112;
+    private static final int CLAIM_BUTTON_HEIGHT = 18;
+    private static final String[] TYPES = {"influencer", "subscription", "breaking_news", "loot_crate", "music", "dirt_plus"};
 
     private static int ticksUntilAd = 20 * 75;
     private static int cooldown;
@@ -34,6 +38,7 @@ public final class AdwarecraftExtraFeatures implements ClientModInitializer {
     private static int clickCount;
     private static int fakePlayerId = -1;
     private static int fakePlayerAge;
+    private static boolean rewardClaimed;
     private static boolean previousLeftMouse;
     private static boolean previouslyLowHealth;
     private static boolean previouslyLowHunger;
@@ -43,7 +48,6 @@ public final class AdwarecraftExtraFeatures implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(AdwarecraftExtraFeatures::tick);
-        // This initializer is registered after the original renderer, so this banner gets top visual priority.
         HudRenderCallback.EVENT.register((context, tickDelta) -> renderAd(context));
     }
 
@@ -57,9 +61,10 @@ public final class AdwarecraftExtraFeatures implements ClientModInitializer {
             return;
         }
 
-        if (previousDimension == null || !previousDimension.equals(client.world.getRegistryKey().getValue())) {
+        Identifier dimension = client.world.getRegistryKey().getValue();
+        if (previousDimension == null || !previousDimension.equals(dimension)) {
             if (previousDimension != null) trigger(client, "dimension");
-            previousDimension = client.world.getRegistryKey().getValue();
+            previousDimension = dimension;
         }
 
         boolean lowHealth = client.player.getHealth() <= 6.0F;
@@ -94,16 +99,20 @@ public final class AdwarecraftExtraFeatures implements ClientModInitializer {
 
     private static void showAd(MinecraftClient client, String trigger) {
         if (client.player == null || client.world == null || activeTicks > 0) return;
-        currentType = (currentType + 1 + client.world.random.nextInt(TYPES.length - 1)) % TYPES.length;
+        currentType = client.world.random.nextInt(TYPES.length);
         activeTicks = AD_DURATION_TICKS;
         cooldown = TRIGGER_COOLDOWN_TICKS;
         clickCount = 0;
-        client.player.sendMessage(Text.translatable("adwarecraft.extra.trigger." + trigger), true);
-
-        // Reuse a built-in music-disc sound: no downloaded audio or extra resource files are needed.
+        rewardClaimed = false;
+        client.player.sendMessage(localized("adwarecraft.extra.trigger." + trigger,
+                "A fresh sponsored interruption has arrived!"), true);
         client.world.playSound(client.player, client.player.getX(), client.player.getY(), client.player.getZ(),
                 SoundEvents.MUSIC_DISC_CAT, SoundCategory.RECORDS, 0.65F, 1.0F);
         spawnVirtualAdPlayer(client);
+    }
+
+    private static Text localized(String key, String fallback) {
+        return Language.getInstance().hasTranslation(key) ? Text.translatable(key) : Text.literal(fallback);
     }
 
     private static void spawnVirtualAdPlayer(MinecraftClient client) {
@@ -125,15 +134,30 @@ public final class AdwarecraftExtraFeatures implements ClientModInitializer {
             double[] cursorX = new double[1];
             double[] cursorY = new double[1];
             GLFW.glfwGetCursorPos(window.getHandle(), cursorX, cursorY);
-            int x = (int) (cursorX[0] * window.getScaledWidth() / window.getWidth());
-            int y = (int) (cursorY[0] * window.getScaledHeight() / window.getHeight());
-            int left = Math.max(8, (window.getScaledWidth() - 310) / 2);
-            int top = Math.max(8, window.getScaledHeight() / 9);
-            if (x >= left && x <= left + Math.min(310, window.getScaledWidth() - 16)
-                    && y >= top && y <= top + 54) {
-                clickCount++;
-                client.player.sendMessage(Text.translatable("adwarecraft.extra.click", clickCount), true);
-                spawnClickFeedback(client);
+            if (window.getWidth() > 0 && window.getHeight() > 0) {
+                int x = (int) (cursorX[0] * window.getScaledWidth() / window.getWidth());
+                int y = (int) (cursorY[0] * window.getScaledHeight() / window.getHeight());
+                int bannerLeft = Math.max(8, (window.getScaledWidth() - 310) / 2);
+                int bannerWidth = Math.min(310, window.getScaledWidth() - 16);
+                int bannerTop = Math.max(8, window.getScaledHeight() / 9);
+                int buttonLeft = bannerLeft + bannerWidth - CLAIM_BUTTON_WIDTH - 10;
+                int buttonTop = bannerTop + BANNER_HEIGHT - CLAIM_BUTTON_HEIGHT - 6;
+                if (x >= buttonLeft && x <= buttonLeft + CLAIM_BUTTON_WIDTH
+                        && y >= buttonTop && y <= buttonTop + CLAIM_BUTTON_HEIGHT) {
+                    clickCount++;
+                    if ("dirt_plus".equals(TYPES[currentType]) && !rewardClaimed) {
+                        rewardClaimed = true;
+                        ClientPlayNetworking.send(AdwarecraftContent.CLAIM_DIRT_PLUS, net.fabricmc.fabric.api.networking.v1.PacketByteBufs.empty());
+                        client.player.sendMessage(localized("adwarecraft.extra.reward.dirt_plus",
+                                "Dirt Plus claimed! Check your inventory."), false);
+                    } else if ("dirt_plus".equals(TYPES[currentType])) {
+                        client.player.sendMessage(localized("adwarecraft.extra.reward.already_claimed",
+                                "This Dirt Plus offer has already been claimed."), false);
+                    } else {
+                        client.player.sendMessage(Text.translatable("adwarecraft.extra.click", clickCount), true);
+                        spawnClickFeedback(client);
+                    }
+                }
             }
         }
         previousLeftMouse = leftMouse;
@@ -157,13 +181,25 @@ public final class AdwarecraftExtraFeatures implements ClientModInitializer {
         int left = Math.max(8, (width - 310) / 2);
         int top = Math.max(8, context.getScaledWindowHeight() / 9);
         int boxWidth = Math.min(310, width - 16);
-        context.fill(left, top, left + boxWidth, top + 54, 0xF0181420);
+        int buttonLeft = left + boxWidth - CLAIM_BUTTON_WIDTH - 10;
+        int buttonTop = top + BANNER_HEIGHT - CLAIM_BUTTON_HEIGHT - 6;
+        context.fill(left, top, left + boxWidth, top + BANNER_HEIGHT, 0xF0181420);
         context.fill(left, top, left + boxWidth, top + 3, 0xFFFF58A8);
         context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.extra.type." + TYPES[currentType]), left + 10, top + 9, 0xFFFFD35A);
+                localized("adwarecraft.extra.type." + TYPES[currentType], "SPONSORED OFFER"), left + 10, top + 9, 0xFFFFD35A);
         context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.extra.copy." + TYPES[currentType]), left + 10, top + 25, 0xFFFFFFFF);
+                localized("adwarecraft.extra.copy." + TYPES[currentType], "Click to see today's sponsored offer."), left + 10, top + 25, 0xFFFFFFFF);
+        String hint = "dirt_plus".equals(TYPES[currentType])
+                ? "Claim a real Dirt Plus item!" : "Click for a totally real surprise • " + clickCount;
         context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.extra.click_hint", clickCount), left + 10, top + 40, 0xFFBDB7C7);
+                localized("adwarecraft.extra.click_hint", hint), left + 10, top + 43, 0xFFBDB7C7);
+        context.fill(buttonLeft, buttonTop, buttonLeft + CLAIM_BUTTON_WIDTH, buttonTop + CLAIM_BUTTON_HEIGHT,
+                rewardClaimed ? 0xFF49604B : 0xFFB43A57);
+        Text buttonLabel = "dirt_plus".equals(TYPES[currentType])
+                ? localized(rewardClaimed ? "adwarecraft.extra.reward.claimed_button" : "adwarecraft.extra.reward.claim_button",
+                    rewardClaimed ? "CLAIMED" : "CLAIM DIRT PLUS")
+                : localized("adwarecraft.extra.reward.claim_button", "CLAIM REWARD");
+        context.drawCenteredTextWithShadow(client.textRenderer, buttonLabel,
+                buttonLeft + CLAIM_BUTTON_WIDTH / 2, buttonTop + 5, 0xFFFFFFFF);
     }
 }

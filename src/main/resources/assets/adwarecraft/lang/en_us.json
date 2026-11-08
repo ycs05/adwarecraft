@@ -10,11 +10,20 @@
   "adwarecraft.extra.type.breaking_news": "BREAKING NEWS • ABOUT THIS AD",
   "adwarecraft.extra.type.loot_crate": "MYSTERY LOOT CRATE • PROBABLY DIRT",
   "adwarecraft.extra.type.music": "SPONSORED MUSIC EXPERIENCE",
+  "adwarecraft.extra.type.dirt_plus": "DIRT PLUS • LIMITED-TIME OFFER",
   "adwarecraft.extra.copy.influencer": "A virtual influencer is standing nearby. They endorse everything.",
   "adwarecraft.extra.copy.subscription": "Unlock premium air with a low monthly emerald fee!",
   "adwarecraft.extra.copy.breaking_news": "Local player interrupted by an advertisement. More at 11.",
   "adwarecraft.extra.copy.loot_crate": "Click to reveal a surprise! Surprise contents may include creepers.",
   "adwarecraft.extra.copy.music": "Enjoy our built-in disc jingle while you consider subscribing.",
+  "adwarecraft.extra.copy.dirt_plus": "Claim a real Dirt Plus item and craft your very own dirt gear!",
   "adwarecraft.extra.click_hint": "Click this ad for a totally real reward • clicks: %s",
-  "adwarecraft.extra.click": "Thanks for clicking! Here is your surprise #%s."
+  "adwarecraft.extra.click": "Thanks for clicking! Here is your surprise #%s.",
+  "adwarecraft.extra.reward.claim_button": "CLAIM NOW",
+  "adwarecraft.extra.reward.claimed_button": "CLAIMED",
+  "adwarecraft.extra.reward.dirt_plus": "Claim successful! Dirt Plus was delivered. Check your inventory.",
+  "adwarecraft.extra.reward.already_claimed": "This Dirt Plus offer has already been claimed.",
+  "item.adwarecraft.dirt_plus": "Dirt Plus",
+  "item.adwarecraft.dirt_helmet": "Dirt Helmet",
+  "item.adwarecraft.dirt_axe": "Dirt Axe"
 }

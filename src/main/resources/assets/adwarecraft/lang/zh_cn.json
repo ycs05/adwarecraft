@@ -10,11 +10,20 @@
   "adwarecraft.extra.type.breaking_news": "突发新闻 • 关于这则广告",
   "adwarecraft.extra.type.loot_crate": "神秘战利品箱 • 里面大概是泥土",
   "adwarecraft.extra.type.music": "赞助音乐体验",
+  "adwarecraft.extra.type.dirt_plus": "泥土 Plus • 限时特惠",
   "adwarecraft.extra.copy.influencer": "一位虚拟网红正在附近。他们什么都代言。",
   "adwarecraft.extra.copy.subscription": "只需每月少量绿宝石，即可解锁高级空气！",
   "adwarecraft.extra.copy.breaking_news": "本地玩家被广告打断。更多消息请看晚间新闻。",
   "adwarecraft.extra.copy.loot_crate": "点击揭晓惊喜！惊喜内容可能包括苦力怕。",
   "adwarecraft.extra.copy.music": "欣赏内置唱片音乐，同时考虑订阅。",
+  "adwarecraft.extra.copy.dirt_plus": "点击立即领取真正的泥土 Plus，可合成泥土装备！",
   "adwarecraft.extra.click_hint": "点击广告领取真实存在的奖励 • 点击次数：%s",
-  "adwarecraft.extra.click": "感谢点击！这是你的第 %s 个惊喜。"
+  "adwarecraft.extra.click": "感谢点击！这是你的第 %s 个惊喜。",
+  "adwarecraft.extra.reward.claim_button": "立即领取",
+  "adwarecraft.extra.reward.claimed_button": "已领取",
+  "adwarecraft.extra.reward.dirt_plus": "领取成功！泥土 Plus 已发放，请查看背包。",
+  "adwarecraft.extra.reward.already_claimed": "这份泥土 Plus 优惠已经领取过了。",
+  "item.adwarecraft.dirt_plus": "泥土 Plus",
+  "item.adwarecraft.dirt_helmet": "泥土头盔",
+  "item.adwarecraft.dirt_axe": "泥土斧"
 }
