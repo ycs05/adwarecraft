@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["PPP", " S ", " S "],
+  "key": {
+    "P": { "item": "adwarecraft:dirt_plus" },
+    "S": { "item": "minecraft:stick" }
+  },
+  "result": { "item": "adwarecraft:dirt_pickaxe", "count": 1 }
+}
