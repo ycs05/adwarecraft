@@ -51,7 +51,7 @@ public final class AdwarecraftExtraFeatures implements ClientModInitializer {
         if (client.player == null || client.world == null || !AdwarecraftConfig.enabled) {
             activeTicks = 0;
             previousLeftMouse = false;
-            previousInScreen = client.currentScreen != null;
+            previouslyInScreen = client.currentScreen != null;
             previousDimension = null;
             fakePlayerId = -1;
             return;
