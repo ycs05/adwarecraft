@@ -22,7 +22,7 @@ public final class AdwarecraftClient implements ClientModInitializer {
     private static final int SCREEN_AD_COOLDOWN = 20 * 18;
     private static final int COPY_ROTATION_TICKS = 40;
     private static final int BRAND_COUNT = 5;
-    private static final int AD_TYPE_COUNT = 6;
+    private static final int AD_TYPE_COUNT = 10;
     private static final int AD_COPY_COUNT = 34;
     private static final int CHAT_COPY_COUNT = 6;
     private static final Random RANDOM = new Random();
@@ -59,9 +59,7 @@ public final class AdwarecraftClient implements ClientModInitializer {
     }
 
     private static void tick(MinecraftClient client) {
-        if (settingsKey.wasPressed()) {
-            client.setScreen(new AdwarecraftSettingsScreen(client.currentScreen));
-        }
+        if (settingsKey.wasPressed()) client.setScreen(new AdwarecraftSettingsScreen(client.currentScreen));
         if (client.player == null || client.world == null) {
             lastScreen = client.currentScreen;
             return;
@@ -81,9 +79,7 @@ public final class AdwarecraftClient implements ClientModInitializer {
                 return;
             }
             adTicksRemaining--;
-            if (adTicksRemaining == 0) {
-                client.player.sendMessage(Text.translatable("adwarecraft.chat.thanks"), true);
-            }
+            if (adTicksRemaining == 0) client.player.sendMessage(Text.translatable("adwarecraft.chat.thanks"), true);
         } else {
             dismissKey.wasPressed();
             if (AdwarecraftConfig.gameplayAds) {
@@ -95,12 +91,9 @@ public final class AdwarecraftClient implements ClientModInitializer {
             } else {
                 gameplayTicks = AdwarecraftConfig.gameplayIntervalTicks();
             }
-
             boolean openedScreen = client.currentScreen != lastScreen;
             if (AdwarecraftConfig.screenAds && openedScreen && isAdScreen(client.currentScreen)
-                    && client.world.getTime() - lastAdStartedAt >= SCREEN_AD_COOLDOWN) {
-                startAd(client);
-            }
+                    && client.world.getTime() - lastAdStartedAt >= SCREEN_AD_COOLDOWN) startAd(client);
         }
         lastScreen = client.currentScreen;
     }
@@ -111,8 +104,7 @@ public final class AdwarecraftClient implements ClientModInitializer {
             return;
         }
         if (--chatTicks <= 0) {
-            int line = RANDOM.nextInt(CHAT_COPY_COUNT);
-            client.player.sendMessage(Text.translatable("adwarecraft.chat.ad." + line), false);
+            client.player.sendMessage(Text.translatable("adwarecraft.chat.ad." + RANDOM.nextInt(CHAT_COPY_COUNT)), false);
             chatTicks = AdwarecraftConfig.chatIntervalTicks();
         }
     }
@@ -134,14 +126,10 @@ public final class AdwarecraftClient implements ClientModInitializer {
 
     private static void closeAd(MinecraftClient client) {
         adTicksRemaining = 0;
-        if (client.player != null) {
-            client.player.sendMessage(Text.translatable("adwarecraft.chat.dismissed"), true);
-        }
+        if (client.player != null) client.player.sendMessage(Text.translatable("adwarecraft.chat.dismissed"), true);
     }
 
-    static void disableForSettings() {
-        adTicksRemaining = 0;
-    }
+    static void disableForSettings() { adTicksRemaining = 0; }
 
     private static void renderHudAd(DrawContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -163,52 +151,38 @@ public final class AdwarecraftClient implements ClientModInitializer {
         int width = context.getScaledWindowWidth();
         int height = context.getScaledWindowHeight();
         int count = Math.max(1, Math.min(3, AdwarecraftConfig.adWindows));
-
-        // The large sponsor panel plus up to two smaller overlapping promo windows.
         int mainWidth = Math.min(350, width - 16);
         int mainHeight = screenAd ? 122 : 110;
         int mainLeft = (width - mainWidth) / 2;
         int mainTop = Math.max(8, height / (screenAd ? 5 : 4));
         drawMainAd(context, mainLeft, mainTop, mainWidth, mainHeight);
-
         if (count >= 2) {
             int smallWidth = Math.min(184, width - 16);
-            int smallLeft = Math.max(8, width - smallWidth - 12);
-            int smallTop = Math.min(height - 68, mainTop + mainHeight + 10);
-            drawMiniWindow(context, smallLeft, smallTop, smallWidth, 58, 1);
+            drawMiniWindow(context, Math.max(8, width - smallWidth - 12),
+                    Math.min(height - 68, mainTop + mainHeight + 10), smallWidth, 58, 1);
         }
         if (count >= 3) {
             int smallWidth = Math.min(184, width - 16);
-            int smallLeft = 8;
-            int smallTop = Math.max(8, mainTop - 48);
-            drawMiniWindow(context, smallLeft, smallTop, smallWidth, 58, 2);
+            drawMiniWindow(context, 8, Math.max(8, mainTop - 48), smallWidth, 58, 2);
         }
-        if (AdwarecraftConfig.messageBoxAds) {
-            drawMessageBox(context, width, height, mainTop, mainHeight);
-        }
+        if (AdwarecraftConfig.messageBoxAds) drawMessageBox(context, width, height, mainTop, mainHeight);
     }
 
     private static void drawMainAd(DrawContext context, int left, int top, int width, int height) {
         MinecraftClient client = MinecraftClient.getInstance();
         int copyIndex = (adNumber - 1 + adAge / COPY_ROTATION_TICKS) % AD_COPY_COUNT;
         int secondsLeft = (adTicksRemaining + 19) / 20;
-
         context.fill(left, top, left + width, top + height, 0xF0181420);
         context.fill(left, top, left + width, top + 3, typeAccent());
         context.fill(left + 7, top + 9, left + width - 7, top + height - 7, 0xFF282033);
         drawTinyAdArt(context, left + 14, top + 20, adAge, adType);
+        context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.type." + typeKey(adType)), left + 66, top + 12, typeAccent());
         context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.type." + typeKey(adType)), left + 66, top + 12, typeAccent());
-        context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.brand." + brandKey((adNumber - 1) % BRAND_COUNT)),
-                left + 66, top + 28, 0xFFFFD35A);
-        context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.ad.copy." + copyIndex), left + 66, top + 44, 0xFFFFFFFF);
-        context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.ad.sponsored", adNumber), left + 66, top + 60, 0xFFBDB7C7);
+                Text.translatable("adwarecraft.brand." + brandKey((adNumber - 1) % BRAND_COUNT)), left + 66, top + 28, 0xFFFFD35A);
+        context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.ad.copy." + copyIndex), left + 66, top + 44, 0xFFFFFFFF);
+        context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.ad.sponsored", adNumber), left + 66, top + 60, 0xFFBDB7C7);
         renderSkipJoke(context, left, top, width, height);
-        context.drawCenteredTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.ad.footer", secondsLeft),
+        context.drawCenteredTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.ad.footer", secondsLeft),
                 left + width / 2, top + height - 16, 0xFFBDB7C7);
     }
 
@@ -216,12 +190,9 @@ public final class AdwarecraftClient implements ClientModInitializer {
         MinecraftClient client = MinecraftClient.getInstance();
         context.fill(left, top, left + width, top + height, 0xF0261C31);
         context.fill(left, top, left + width, top + 12, 0xFFB43A57);
-        context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.window.title", index), left + 5, top + 2, 0xFFFFFFFF);
-        context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.window.body"), left + 7, top + 20, 0xFFFFE6A3);
-        context.drawTextWithShadow(client.textRenderer,
-                Text.translatable("adwarecraft.window.close_joke"), left + 7, top + 36, 0xFFBDB7C7);
+        context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.window.title", index), left + 5, top + 2, 0xFFFFFFFF);
+        context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.window.body"), left + 7, top + 20, 0xFFFFE6A3);
+        context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.window.close_joke"), left + 7, top + 36, 0xFFBDB7C7);
     }
 
     private static void drawMessageBox(DrawContext context, int screenWidth, int screenHeight, int mainTop, int mainHeight) {
@@ -242,9 +213,11 @@ public final class AdwarecraftClient implements ClientModInitializer {
         return switch (adType) {
             case 1 -> 0xFFFF5B55;
             case 2 -> 0xFF63C7FF;
-            case 3 -> 0xFFFFD34D;
+            case 3, 9 -> 0xFFFFD34D;
             case 4 -> 0xFFFF76D7;
-            case 5 -> 0xFF94E36F;
+            case 5, 6 -> 0xFF94E36F;
+            case 7 -> 0xFF38D5A2;
+            case 8 -> 0xFF9B71FF;
             default -> 0xFFFFB000;
         };
     }
@@ -256,6 +229,10 @@ public final class AdwarecraftClient implements ClientModInitializer {
             case 3 -> "daily_reward";
             case 4 -> "short_video";
             case 5 -> "survey";
+            case 6 -> "portal";
+            case 7 -> "cleaner";
+            case 8 -> "game_promo";
+            case 9 -> "tank_reward";
             default -> "sponsored";
         };
     }
@@ -282,19 +259,33 @@ public final class AdwarecraftClient implements ClientModInitializer {
             context.fill(x + 15, y + 12 + bob, x + 27, y + 15 + bob, 0xFFFFFFFF);
             context.fill(x + 15, y + 19 + bob, x + 27, y + 22 + bob, 0xFFFFFFFF);
             context.fill(x + 15, y + 26 + bob, x + 24, y + 29 + bob, 0xFFFFFFFF);
-        } else if (type == 3) {
-            context.fill(x + 10, y + 16 + bob, x + 32, y + 31 + bob, 0xFFFFD34D);
+        } else if (type == 3 || type == 9) {
+            context.fill(x + 10, y + 16 + bob, x + 32, y + 31 + bob, type == 9 ? 0xFF53677B : 0xFFFFD34D);
             context.fill(x + 19, y + 14 + bob, x + 23, y + 31 + bob, 0xFFFF5B55);
             context.fill(x + 8, y + 12 + bob, x + 34, y + 17 + bob, 0xFFFF5B55);
+            if (type == 9) context.fill(x + 3, y + 31 + bob, x + 39, y + 34 + bob, 0xFF9AA7B5);
         } else if (type == 4) {
             context.fill(x + 10, y + 8 + bob, x + 32, y + 32 + bob, 0xFFFF76D7);
             context.fill(x + 18, y + 14 + bob, x + 22, y + 27 + bob, 0xFFFFFFFF);
             context.fill(x + 22, y + 17 + bob, x + 26, y + 24 + bob, 0xFFFFFFFF);
         } else if (type == 5) {
-            for (int i = 0; i < 5; i++) {
-                context.fill(x + 5 + i * 7, y + 17 + bob, x + 10 + i * 7, y + 24 + bob,
-                        i < ((age / 10) % 6) ? 0xFFFFD34D : 0xFF77717E);
-            }
+            for (int i = 0; i < 5; i++) context.fill(x + 5 + i * 7, y + 17 + bob, x + 10 + i * 7, y + 24 + bob,
+                    i < ((age / 10) % 6) ? 0xFFFFD34D : 0xFF77717E);
+        } else if (type == 6) {
+            context.fill(x + 2, y + 5 + bob, x + 40, y + 12 + bob, 0xFFFFB52E);
+            context.fill(x + 2, y + 14 + bob, x + 27, y + 34 + bob, 0xFF3B83B8);
+            context.fill(x + 29, y + 14 + bob, x + 40, y + 24 + bob, 0xFFB54455);
+            context.fill(x + 29, y + 26 + bob, x + 40, y + 34 + bob, 0xFFE0D7B5);
+        } else if (type == 7) {
+            context.fill(x + 10, y + 7 + bob, x + 33, y + 34 + bob, 0xFF20B779);
+            context.fill(x + 15, y + 12 + bob, x + 28, y + 17 + bob, 0xFFFFFFFF);
+            context.fill(x + 16, y + 21 + bob, x + 27, y + 28 + bob, 0xFFB8F8D4);
+            context.fill(x + 19, y + 23 + bob, x + 24, y + 26 + bob, 0xFF20B779);
+        } else if (type == 8) {
+            context.fill(x + 3, y + 6 + bob, x + 39, y + 34 + bob, 0xFF4A327D);
+            context.fill(x + 14, y + 9 + bob, x + 28, y + 30 + bob, 0xFFFF79C8);
+            context.fill(x + 18, y + 14 + bob, x + 24, y + 24 + bob, 0xFFFFFFFF);
+            context.fill(x + 5, y + 27 + bob, x + 14, y + 32 + bob, 0xFFFFD34D);
         } else {
             context.fill(x + 13, y + 8 + bob, x + 29, y + 30 + bob, 0xFF27C879);
             context.fill(x + 17, y + 5 + bob, x + 25, y + 8 + bob, 0xFF66F0A5);
@@ -317,16 +308,12 @@ public final class AdwarecraftClient implements ClientModInitializer {
             context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.skip.no_skip"), left + 66, buttonTop + 5, 0xFF8F8997);
             return;
         }
-        Text label = skipStyle == 0 && wait > 0
-                ? Text.translatable("adwarecraft.skip.wait", wait)
+        Text label = skipStyle == 0 && wait > 0 ? Text.translatable("adwarecraft.skip.wait", wait)
                 : Text.translatable("adwarecraft.skip.skip_now");
         int color = skipStyle == 1 ? 0xFFB43542 : (wait > 0 ? 0xFF57515E : 0xFF426A53);
         context.fill(buttonLeft, buttonTop, buttonRight, buttonTop + 19, color);
         context.drawCenteredTextWithShadow(client.textRenderer, label, buttonLeft + 38, buttonTop + 6, 0xFFFFFFFF);
-        if (skipStyle == 1) {
-            context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.skip.decorative"), buttonLeft - 63, buttonTop + 6, 0xFFFF9191);
-        } else if (adAge >= 100) {
-            context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.skip.not_real"), buttonLeft - 83, buttonTop + 6, 0xFFFF9191);
-        }
+        if (skipStyle == 1) context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.skip.decorative"), buttonLeft - 63, buttonTop + 6, 0xFFFF9191);
+        else if (adAge >= 100) context.drawTextWithShadow(client.textRenderer, Text.translatable("adwarecraft.skip.not_real"), buttonLeft - 83, buttonTop + 6, 0xFFFF9191);
     }
 }
