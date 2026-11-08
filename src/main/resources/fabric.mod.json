@@ -1,1 +1,23 @@
-{"schemaVersion":1,"id":"adwarecraft","version":"${version}","name":"Adwarecraft","description":"A lighthearted satire of apps that interrupt everything to sell you something.","authors":["ycs05"],"contact":{},"license":"All-Rights-Reserved","environment":"client","entrypoints":{"client":["dev.adwarecraft.AdwarecraftClient"]},"depends":{"fabricloader":">=0.14.21","minecraft":"~1.20.1","java":">=17","fabric-api":"*"}}
+{
+  "schemaVersion": 1,
+  "id": "adwarecraft",
+  "version": "${version}",
+  "name": "Adwarecraft",
+  "description": "A lighthearted satire of apps that interrupt everything to sell you something.",
+  "authors": ["ycs05"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.adwarecraft.AdwarecraftClient",
+      "dev.adwarecraft.AdwarecraftExtraFeatures"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}
