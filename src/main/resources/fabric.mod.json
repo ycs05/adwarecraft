@@ -7,8 +7,9 @@
   "authors": ["ycs05"],
   "contact": {},
   "license": "All-Rights-Reserved",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
+    "main": ["dev.adwarecraft.AdwarecraftContent"],
     "client": [
       "dev.adwarecraft.AdwarecraftClient",
       "dev.adwarecraft.AdwarecraftExtraFeatures"

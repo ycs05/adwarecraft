@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["PPP", "P P"],
+  "key": {
+    "P": { "item": "adwarecraft:dirt_plus" }
+  },
+  "result": { "item": "adwarecraft:dirt_helmet", "count": 1 }
+}
