@@ -23,6 +23,7 @@ public final class AdwarecraftClient implements ClientModInitializer {
     private static final int COPY_ROTATION_TICKS = 40;
     private static final int BRAND_COUNT = 5;
     private static final int AD_TYPE_COUNT = 6;
+    private static final int AD_COPY_COUNT = 34;
     private static final int CHAT_COPY_COUNT = 6;
     private static final Random RANDOM = new Random();
 
@@ -189,7 +190,7 @@ public final class AdwarecraftClient implements ClientModInitializer {
 
     private static void drawMainAd(DrawContext context, int left, int top, int width, int height) {
         MinecraftClient client = MinecraftClient.getInstance();
-        int copyIndex = (adNumber - 1 + adAge / COPY_ROTATION_TICKS) % 30;
+        int copyIndex = (adNumber - 1 + adAge / COPY_ROTATION_TICKS) % AD_COPY_COUNT;
         int secondsLeft = (adTicksRemaining + 19) / 20;
 
         context.fill(left, top, left + width, top + height, 0xF0181420);
